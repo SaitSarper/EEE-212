@@ -1,0 +1,16 @@
+DIV:	MOV R3, #34d		;this part is modified in part of question
+	MOV R4, #3d		;randomly picked values to try
+	Mov A, R3
+Findiv:	Mov B, R4
+
+	DIV AB
+	
+	MOV R2, B
+	CJNE R2, #00h, notzero
+	
+	
+	setb c 
+	JC x
+
+notzero: clr c	
+ x: MOV B, R4

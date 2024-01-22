@@ -1,0 +1,90 @@
+/*
+Tutorial Code based on Mazidi's Book
+
+Author: Ali Necat
+*/
+
+#include <MKL25Z4.H>
+#include <stdio.h>
+#include <math.h>
+//This is how you import a header file
+#include "utils.h"
+int foo(int a, int b);
+
+//This is where the code runs. Programs start from here
+int main(void){
+	//Initialize LCD and keypad
+	LCD_init();
+	keypad_init();
+	
+	//Blink LED
+	blink();
+}
+
+
+/* General Structure of a function
+[RETURNED DTYPE] [FNC NAME]([INP DTYPE] [INP NAME], [INP DTYPE] [INP NAME] ...){
+	
+	//DO SOMETHING
+	
+	return [SOME VARIABLE]
+}
+*/
+
+int foo(int a, int b){
+	//This is bitwise OR
+	return a | b;
+}
+
+//PROTOTYPING: Helps to make a function recognizable and compilable by others
+//[RETURNED DTYPE] [FNC NAME]([INP DTYPE] [INP NAME], [INP DTYPE] [INP NAME] ...);
+//Check the top
+
+
+//IF STATEMENTS
+/*
+	if (SOMETHING TRUE){
+		DO SOMETHING
+	}
+	else if (ANOTHER THING IS TRUE){
+		DO SOMETHING
+	}
+	else{
+		DO SOMETHING
+	}
+*/
+
+//LOOPS
+/*
+	FOR LOOP
+	for([ITER VARIABLE]; [ITER COND]; [ITER VAR STEP]){
+		DO SOMETHING
+	}
+	WHILE LOOP
+	while(A CONTITION IS TRUE){
+		DO SOMETHING
+	}
+*/
+
+//DATA TYPES
+/*
+Integer: 32-bit signed(int)
+Unsigned Int: 32-bit unsigned(uint)
+Char: A character. (char)
+Float: FP-32 number (float)
+
+Example:
+int a = 0;
+*/
+
+//DATA STRUCTURES
+/*
+	ARRAYS
+	int * arr = {1,2,3,4};
+	int arr[] = {1,2,3,4};
+	int * arr[4] ;
+	* sign represents a pointer to the array. This is the mem loc ation where the array starts.
+*/
+
+
+

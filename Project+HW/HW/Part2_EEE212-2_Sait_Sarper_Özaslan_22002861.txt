@@ -1,0 +1,282 @@
+
+acall	CONFIGURE_LCD
+again:	MOV A , #'P'
+	acall send_data				
+	MOV A , #'h'
+	acall send_data
+	MOV A , #'i'
+	acall send_data
+	MOV A , #'('
+	acall send_data
+	
+Keyboard_LOOP:	
+	acall KEYBOARD
+	mov R5, A
+	ANL A, #0FH
+
+	acall KEYBOARD
+	mov R6, A
+	ANL A, #0FH
+
+	acall KEYBOARD
+	mov R7, A
+	ANL A, #0FH
+
+	;now, A has the key pressed
+	MOV A, R5
+	ORL A, #30h
+	acall SEND_DATA
+
+	MOV A, R6
+	ORL A, #30h
+	acall SEND_DATA
+
+	MOV A, R7
+	ORL A, #30h
+	acall SEND_DATA
+	
+	MOV A , #')'
+	acall send_data
+
+	
+fakexit:
+	acall Keyboard
+	cjne A, #'A', fakexit
+	
+	mov A, #'='
+send:	acall send_data
+
+Asciitodec:
+	mov A, R5
+	ANL A, #0FH
+	Mov B, #100d
+	mul AB
+	mov R5, A
+	mov  A, R6
+	ANL A, #0FH
+	mov B, #10d
+	mul AB
+	add A, R5
+	mov R6, A
+	mov A, R7
+	ANL A, #0FH
+	mov B, #1d
+	mul AB
+	add A, R6
+
+	
+	mov R3, A 	
+	
+sjmp part2 
+Primes: DB 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151,157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241,251
+DIVd:	;MOV R3, #60d
+	
+	Mov A, R3			;part 1 will be reused here
+	cjne A, #01H, findiv 		;special case 1
+	sjmp forascii
+Findiv:	Mov R4, B
+
+	DIV AB
+	
+	MOV R7, B
+	CJNE R7, #00h, notzero
+	
+	
+	setb c 
+	JC x
+notzero: clr c	
+x: MOV B, R4
+ret
+part2: Mov DPTR, #Primes
+	MOV R5, #36h
+	Mov R0, #30h
+	MOV r2, #00h
+	sjmp import
+next: dec R5				; This is the case for when carry flag is not set 
+					;the amount of ptime numbers to try still should decrease
+	mov A, R5
+	jz  finel			;jump for finel part of part
+import:	CLR A
+	MOVC A, @A+DPTR     		; Add the prime to A
+	MOV B, A
+	Inc dptr
+	Acall DIVd		; Move it to B as it is the dividor
+
+TRAM: JnC next
+
+addtoram: Mov @r0, B
+	Inc R0
+	inc R2
+	djnz R5, import
+
+		
+finel:	Mov A, R3
+	cjne A, #01h, cont
+	ljmp exit
+cont:	MOV R0, #30h
+final: 
+	clr c
+	Mov B,@r0
+	inc r0
+	Acall findiv
+	Push A
+	MOV A,B
+	clr c
+	Subb A, #01h
+	MOv B,A
+	Pop A
+	Mul AB
+	
+	
+	djnz R2, final
+	
+	
+forASCII:					;preparation for the LCD Part
+	mov B, #100d				;numbers
+	div AB
+	Mov R5, A
+	
+	Mov A,B
+	Mov B,#10d
+	div AB
+	
+	Mov r6,A
+	MOV r7,B
+	
+	
+display:
+	MOV A, R5
+	ORL A, #30h
+	acall SEND_DATA
+
+	
+	MOV A, R6
+	ORL A, #30h
+	acall SEND_DATA
+		
+	
+	MOV A, R7
+	ORL A, #30h
+	acall SEND_DATA
+		
+	ljmp exit
+	
+
+
+
+
+CONFIGURE_LCD:	;THIS SUBROUTINE SENDS THE INITIALIZATION COMMANDS TO THE LCD
+	mov a,#38H	;TWO LINES, 5X7 MATRIX
+	acall SEND_COMMAND
+	mov a,#0FH	;DISPLAY ON, CURSOR BLINKING
+	acall SEND_COMMAND
+	mov a,#06H	;INCREMENT CURSOR (SHIFT CURSOR TO RIGHT)
+	acall SEND_COMMAND
+	mov a,#01H	;CLEAR DISPLAY SCREEN
+	acall SEND_COMMAND
+	mov a,#80H	;FORCE CURSOR TO BEGINNING OF THE FIRST LINE
+	acall SEND_COMMAND
+	ret
+
+
+
+SEND_COMMAND:
+	mov p1,a		;THE COMMAND IS STORED IN A, SEND IT TO LCD
+	clr p3.5		;RS=0 BEFORE SENDING COMMAND
+	clr p3.6		;R/W=0 TO WRITE
+	setb p3.7	;SEND A HIGH TO LOW SIGNAL TO ENABLE PIN
+	acall DELAY
+	clr p3.7
+	ret
+
+
+SEND_DATA:
+	mov p1,a		;SEND THE DATA STORED IN A TO LCD
+	setb p3.5	;RS=1 BEFORE SENDING DATA
+	clr p3.6		;R/W=0 TO WRITE
+	setb p3.7	;SEND A HIGH TO LOW SIGNAL TO ENABLE PIN
+	acall DELAY
+	clr p3.7
+	ret
+
+
+DELAY:
+	push 0
+	push 1
+	mov r0,#50
+DELAY_OUTER_LOOP:
+	mov r1,#255
+	djnz r1,$
+	djnz r0,DELAY_OUTER_LOOP
+	pop 1
+	pop 0
+	ret
+
+
+KEYBOARD: ;takes the key pressed from the keyboard and puts it to A
+	mov	P0, #0ffh	;makes P0 input
+K1:
+	mov	P2, #0	;ground all rows
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, K1
+K2:
+	acall	DELAY
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, KB_OVER
+	sjmp	K2
+KB_OVER:
+	acall DELAY
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, KB_OVER1
+	sjmp	K2
+KB_OVER1:
+	mov	P2, #11111110B
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, ROW_0
+	mov	P2, #11111101B
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, ROW_1
+	mov	P2, #11111011B
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, ROW_2
+	mov	P2, #11110111B
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, ROW_3
+	ljmp	K2
+	
+ROW_0:
+	mov	DPTR, #KCODE0
+	sjmp	KB_FIND
+ROW_1:
+	mov	DPTR, #KCODE1
+	sjmp	KB_FIND
+ROW_2:
+	mov	DPTR, #KCODE2
+	sjmp	KB_FIND
+ROW_3:
+	mov	DPTR, #KCODE3
+KB_FIND:
+	rrc	A
+	jnc	KB_MATCH
+	inc	DPTR
+	sjmp	KB_FIND
+KB_MATCH:
+	clr	A
+	movc	A, @A+DPTR; get ASCII code from the table 
+	ret
+
+;ASCII look-up table 
+KCODE0:	DB	'1', '2', '3', 'A'
+KCODE1:	DB	'4', '5', '6', 'B'
+KCODE2:	DB	'7', '8', '9', 'C'
+KCODE3:	DB	'*', '0', '#', 'D'
+
+exit: sjmp exit
+end

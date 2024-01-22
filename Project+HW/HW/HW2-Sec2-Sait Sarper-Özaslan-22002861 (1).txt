@@ -1,0 +1,507 @@
+ORG 0000H
+lJmp start			;Sait Sarper Özaslan- 22002861 - Section 2
+Org 000Bh
+ljmp t0isr
+org 001BH
+LJMP T1ISR
+org 0030h
+
+
+
+START: acall	CONFIGURE_LCD
+	mov A, #'f'
+	acall send_data
+	mov A, #'='
+	acall send_data
+
+KEYBOARD_LOOP:
+	acall KEYBOARD
+	mov 38h, A
+	ANL A, #0FH
+
+	acall KEYBOARD
+	mov 39h, A
+	ANL A, #0FH
+
+	acall KEYBOARD
+	mov 3ah, A
+	ANL A, #0FH
+
+	;now, A has the key pressed
+	MOV A, 38h
+	ORL A, #30h
+	acall SEND_DATA
+
+	MOV A, 39h
+	ORL A, #30h
+	acall SEND_DATA
+
+	MOV A, 3Ah
+	ORL A, #30h
+	acall SEND_DATA
+
+	mov A, #'H'
+	acall send_data
+	mov A, #'z'
+	acall send_data
+
+	Mov A, #0C0H
+	ACALL SEND_COMMAND
+	mov A, #'D'
+	acall send_data
+	mov A, #'='
+	acall send_data
+	
+	acall KEYBOARD
+	mov 3Bh, A
+	ANL A, #0FH
+
+	acall KEYBOARD
+	mov 3Ch, A
+	ANL A, #0FH
+
+	MOV A, 3Bh
+	ORL A, #30h
+	acall SEND_DATA
+
+	MOV A, 3Ch
+	ORL A, #30h
+	acall SEND_DATA
+	MOV A ,#'%'
+	ACALL SEND_DATA
+
+ mov IE, #10001010b
+ mov tmod, #00010001b
+ASCIITOHEX:
+	mov A, 38h
+	ANL A, #0FH
+	Mov B, #100d
+	mul AB
+	mov 38h, A
+	mov  A, 39h
+	ANL A, #0FH
+	mov B, #10d
+	mul AB
+	add A, 38h
+	mov 39h, A
+	mov A, 3AH
+	ANL A, #0FH
+	mov B, #1d
+	mul AB
+	add A, 39h
+
+	mov 60h, A ;(frequency)
+
+
+	mov A, 3Bh
+	ANL A, #0FH
+	Mov B, #10d
+	mul AB
+	mov 3Bh, A
+	mov  A, 3Ch
+	ANL A, #0FH
+	mov B, #1d
+	mul AB
+	add A, 3bh
+	
+	mov 61h, A    ;(duty cycle)	
+
+
+
+
+	
+
+
+ ljmp case1
+Findingtime:
+	Mov A, #100d		;here we are doing the operation (10^4D)/f to find the amount
+	Mov B, #100d		; of machine cycles the times will need and how many times we will need 
+	Mul AB			;to djnz to create the wanted timer value
+	mov 30h, A		; lets divide this value into f 
+	mov 31h, B		; 
+
+	
+	mov 13h, #00h
+div16_16:		;word to byte division()
+  CLR C       
+  MOV 14h,#00h ;Clear R4 working variable initially
+  MOV 15h,#00h ;CLear R5 working variable initially
+  MOV B,#00h  ;Clear B since B will count the number of left-shifted bits
+div1:
+  INC B      ;Increment counter for each left shift
+  MOV A,12h   ;Move the current divisor low byte into the accumulator(in this case it is the frequency)
+  RLC A      
+  MOV 12h,A  
+  MOV A,13h   ;Move the current divisor high byte into the accumulator
+  RLC A      
+  MOV 13h,A   ;Save the updated divisor high-byte
+  JNC div1   ;Repeat until carry flag is set from high-byte
+div2:        ;Shift right the divisor
+  MOV A,13h   ;Move high-byte of divisor into accumulator
+  RRC A      
+  MOV 13h,A   ;Save updated value of high-byte of divisor
+  MOV A,12h   ;Move low-byte of divisor into accumulator
+  RRC A      
+  MOV 12h,A   ;Save updated value of low-byte of divisor
+  CLR C      ;Clear carry, we don't need it anymore
+  MOV 11h,31h ;Make a safe copy of the high-byte
+  MOV 10h,30h ;Make a safe copy of the low-byte
+  MOV A,30h   ;Move low-byte of dividend into accumulator
+  SUBB A,12h  
+  MOV 30h,A   
+  MOV A,31h   ;Move high-byte of dividend into accumulator
+  SUBB A,13h  ;Subtract high-byte of divisor (all together 16-bit substraction)
+  MOV 31h,A   ;Save updated high-byte back in high-byte of divisor
+  JNC div3   ;If carry flag is NOT set, result is 1
+  MOV 31h,11h ;Otherwise result is 0, save copy of divisor to undo subtraction
+  MOV 30h,10h
+div3:
+  CPL C      ;Invert carry, so it can be directly copied into result
+  MOV A,14h 
+  RLC A      ;Shift carry flag into temporary result
+  MOV 14h,A   
+  MOV A,15h
+  RLC A
+  MOV 15h,A		
+  DJNZ B,div2 ;Now count backwards and repeat until "B" is zero
+  MOV 13h,15h  ;Move result to R3/R2
+  MOV 12h,14h  ;Move result to R3/R2
+  ;remainder is in 10h, 11h in this case, error caused by this is low enough, letting us disregard it
+  
+
+multiplicatin2x1byte:
+Step1:	mov A, 16h		; D
+	mov B, 12h		;low byte
+	Mul AB	
+	Mov 1AH, B
+	Mov 1BH, A
+
+Step2:	Mov A, 16h
+	Mov B, 13h
+	Mul AB
+	Add A, 1Ah
+	Mov 1Ah, A
+	Mov A,B
+	ADDC A, #00h
+	Mov 19h, A
+
+finalcalcfortimers:	;subtraction for timers,
+	mov A, #0FFH
+	Subb A, 1Bh
+	mov 1bh, A
+	mov A, #0ffh
+	subb A, 1Ah
+	mov 1Ah , A
+	mov A, 1BH
+	add A, #01h
+	mov 1BH, A
+	mov A, 1Ah
+	addc A, #00h
+	mov 1Ah, A
+ret
+
+
+
+case1:		;case wave 1 on time
+	mov 16h, 61h
+	mov 12h, 60h
+	LCALL findingtime
+	mov 40h, 19h		;using indirect was more laborous
+	mov 41h, 1Ah		;from now on, the adresses in order correlate to: loop time 40h, th0 and tl0- 41h and 42h
+	mov 42h, 1BH
+case2: 		;case wave 1 off time
+	mov 16h, 61h		; D
+	mov 12h, 60h		; f(n)
+	mov A, #100d
+	subb A, 16h
+	mov 16h, A
+	mov 12h, 60h
+	LCall findingtime
+	mov 43h, 19h		
+	mov 44h, 1Ah
+	mov 45h, 1BH
+
+case3: 		;case wave 2 on time
+	mov 16h, 61h
+	mov 12h, 60h
+	mov A, 16h
+	mov B, #2d
+	div AB
+	mov 16h, A
+	mov A, 60h
+	mov B, #03d
+	mul AB
+	mov r7, B
+	cjne r7, #01h, next
+	mov 12h, #0FFh
+	Lcall findingtime
+	sjmp loadcase3
+next: mov 12h, A
+	Lcall findingtime
+loadcase3:
+	mov 46h, 19h		
+	mov 47h, 1Ah
+	mov 48h, 1BH
+
+
+
+case4:	mov 16h, 61h
+	mov 12h, 60h
+	Mov A, 16h
+	mov B, #2d
+	div AB
+	mov 16h, A
+	mov A,#100d
+	subb A, 16h
+	mov 16h, A
+	mov A, 60h
+	mov B, #03d
+	mul AB
+	mov r7, B
+	cjne r7, #01h, next1
+	mov 12h, #0FFh
+	Lcall findingtime
+	sjmp loadcase4
+next1: mov 12h, A
+	Lcall findingtime
+loadcase4:
+	mov 49h, 19h		
+	mov 4Ah, 1Ah
+	mov 4Bh, 1BH
+
+wave3: mov A, 61h		; period of wave 3(LED) is twenty times higher, therefore we need to calculate
+mov B , #5d			;how much time there will be spent in on times and off times
+div AB
+mov r4, A
+mov A, #20d
+subb A, r4
+
+mov r0, A
+inc r0				;during LED due to way I have written code one step in off time was lost, increment
+				; was added to fix this loss
+
+clr A
+main: 
+	MOV R6, 46H
+	mov R7, 49h
+	mov r3, 43h
+	
+	MOV R2, 40H
+	
+	MOV R1, #01H
+	
+	MOV R5, #01H
+	SETB TR0
+	SETB TR1
+	
+	cjne r2, #00h, check
+	setb tf0
+check:	cjne r6, #00h, here
+	setb tf1
+hERE: SJMP HERE
+
+T0ISR: 				;here I created wave 1
+ Loop1:	cjne r2, #00h , skip1		;checks if there is a loop(when higher than 65536microseconds)
+	jnb 00h, yükle
+	sjmp cmplm
+ skip1: djnz r2, ret1
+ yükle:	clr tr0	
+	mov th0, 41h
+ 	mov tl0, 42h
+ 	setb tr0
+ 	setb 00h
+ 	reti
+cmplm: cjne r1, #01h, loop2		;(one time complement)
+	cpl P3.1
+	dec r1
+loop2:	cjne r3, #00h, skip2		;off time same function as upper
+	jnb 01h, yükle2
+	sjmp LOAD1
+skip2:	dec r3
+	reti
+yükle2:	clr tr0
+	mov th0 ,44h
+	mov tl0, 45h
+	setb tr0
+	setb 01h
+	reti
+LOAD1: Acall Loadone
+ret1: reti
+
+T1ISR: 				;here I created wave 2
+LOOP3: cjne r6, #00h, skip3
+	jnb 02h, yükle3
+	sjmp cmplm2
+ skip3:djnz r6, ret2
+ yükle3:clr tr1
+ 	mov th1, 47h
+ 	mov tl1, 48h
+	setb tr1
+	setb 02h
+	reti	
+cmplm2: cjne r5, #01h, loop4
+	cpl p3.2
+	dec r5
+loop4: cjne r7, #00h, skip4
+	jnb 03h ,yükle4
+	sjmp load2
+skip4: djnz r7, ret2
+yükle4:	clr tr1
+	mov th1, 4Ah
+	mov tl1, 4bh
+	setb tr1
+	setb 03h
+	reti
+load2: Acall loadtwo
+ret2: reti
+	
+Loadone: setb p3.1		;here I created wave3(LED)
+	
+	
+LED:	
+	jb 04h, eh
+	inc A
+	cjne A,04h, atla		;the 04h is on time of LED, the 01h is off time of LED 
+	cpl P3.0
+	clr A
+	setb 04h
+eh:	inc A
+	cjne A,00h,atla
+	clr A
+	cpl P3.0
+	clr 04h				;end of LED
+atla:	mov r3, 43h			; reload
+	mov r1, #01h
+	mov r2, 40h
+	clr 00h
+	clr 01h 
+	cjne r2, #00h, kac1
+	
+	setb tf0
+	
+kac1:ret
+Loadtwo: setb p3.2
+
+	clr 02h
+	clr 03h
+	mov r7, 49h
+	mov r5,#01h
+	mov r6, 46h
+	cjne r6, #00h, kac2
+	setb tf1
+	
+kac2: ret
+CONFIGURE_LCD:	;THIS SUBROUTINE SENDS THE INITIALIZATION COMMANDS TO THE LCD
+	mov a,#38H	;TWO LINES, 5X7 MATRIX
+	acall SEND_COMMAND
+	mov a,#0FH	;DISPLAY ON, CURSOR BLINKING
+	acall SEND_COMMAND
+	mov a,#06H	;INCREMENT CURSOR (SHIFT CURSOR TO RIGHT)
+	acall SEND_COMMAND
+	mov a,#01H	;CLEAR DISPLAY SCREEN
+	acall SEND_COMMAND
+	mov a,#80H	;FORCE CURSOR TO BEGINNING OF THE FIRST LINE
+	acall SEND_COMMAND
+	ret
+
+
+
+SEND_COMMAND:
+	mov p1,a		;THE COMMAND IS STORED IN A, SEND IT TO LCD
+	clr p3.5		;RS=0 BEFORE SENDING COMMAND
+	clr p3.6		;R/W=0 TO WRITE
+	setb p3.7	;SEND A HIGH TO LOW SIGNAL TO ENABLE PIN
+	acall DELAY
+	clr p3.7
+	ret
+
+
+SEND_DATA:
+	mov p1,a		;SEND THE DATA STORED IN A TO LCD
+	setb p3.5	;RS=1 BEFORE SENDING DATA
+	clr p3.6		;R/W=0 TO WRITE
+	setb p3.7	;SEND A HIGH TO LOW SIGNAL TO ENABLE PIN
+	acall DELAY
+	clr p3.7
+	ret
+
+
+DELAY:
+	push 0
+	push 1
+	mov r0,#50
+DELAY_OUTER_LOOP:
+	mov r1,#255
+	djnz r1,$
+	djnz r0,DELAY_OUTER_LOOP
+	pop 1
+	pop 0
+	ret
+
+
+KEYBOARD: ;takes the key pressed from the keyboard and puts it to A
+	mov	P0, #0ffh	;makes P0 input
+K1:
+	mov	P2, #0	;ground all rows
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, K1
+K2:
+	acall	DELAY
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, KB_OVER
+	sjmp	K2
+KB_OVER:
+	acall DELAY
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, KB_OVER1
+	sjmp	K2
+KB_OVER1:
+	mov	P2, #11111110B
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, ROW_0
+	mov	P2, #11111101B
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, ROW_1
+	mov	P2, #11111011B
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, ROW_2
+	mov	P2, #11110111B
+	mov	A, P0
+	anl	A, #00001111B
+	cjne	A, #00001111B, ROW_3
+	ljmp	K2
+	
+ROW_0:
+	mov	DPTR, #KCODE0
+	sjmp	KB_FIND
+ROW_1:
+	mov	DPTR, #KCODE1
+	sjmp	KB_FIND
+ROW_2:
+	mov	DPTR, #KCODE2
+	sjmp	KB_FIND
+ROW_3:
+	mov	DPTR, #KCODE3
+KB_FIND:
+	rrc	A
+	jnc	KB_MATCH
+	inc	DPTR
+	sjmp	KB_FIND
+KB_MATCH:
+	clr	A
+	movc	A, @A+DPTR; get ASCII code from the table 
+	ret
+
+;ASCII look-up table 
+KCODE0:	DB	'1', '2', '3', 'A'
+KCODE1:	DB	'4', '5', '6', 'B'
+KCODE2:	DB	'7', '8', '9', 'C'
+KCODE3:	DB	'*', '0', '#', 'D'
+
+end

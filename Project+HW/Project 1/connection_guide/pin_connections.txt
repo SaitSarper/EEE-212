@@ -1,0 +1,9 @@
+
+ * LCD’s data pins are connected to PORTD (0 to 7)of the microcontroller.
+ * LCD’s RS pin is connected to Pin 2 of PORTA of the microcontroller.
+ * LCD’s R/W pin is connected to Pin 4 of PORTA of the microcontroller.
+ * LCD’s E pin is connected to Pin 5 of PORTA of the microcontroller. 
+ * LCD’s BLA(or A) pin is connected to 5V, BLK(or K) is connected to GND.
+ * LCD’s V0 pin is connected to the GND through 1K resistance.
+ * Connect the power supply GND to the GND of the KL25-Z board GND pin (There are several options, choose one of them)  
+ * Rows of the keypad are connected to PORTC 0-3, Columns are connected to PORTC4-7.

@@ -1,0 +1,209 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.38.0.0
+Copyright (C) 2022 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Sait Sarper Özaslan, Ihsan Dogramci Bilkent University, LIC=----
+ 
+Tool Versions:
+Toolchain:       MDK-Lite  Version: 5.38.0.0
+Toolchain Path:  C:\Keil_v5\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.19
+Assembler:       Armasm.exe V6.19
+Linker/Locator:  ArmLink.exe V6.19
+Library Manager: ArmAr.exe V6.19
+Hex Converter:   FromElf.exe V6.19
+CPU DLL:         SARMCM3.DLL V5.38.0.0
+Dialog DLL:      DARMCM1.DLL V1.19.6.0
+Target DLL:      PEMicro\Pemicro_ArmCortexInterface.dll V1.3.0.0
+Dialog DLL:      TARMCM1.DLL V1.14.6.0
+ 
+<h2>Project:</h2>
+C:\Users\Sarper\Desktop\Sarper\sarper_project2\tutorial.uvprojx
+Project File Date:  05/21/2023
+
+<h2>Output:</h2>
+*** Using Compiler 'V6.19', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
+Build target 'Target 1'
+projectsa.c(1): warning: non-portable path to file '<MKL25Z4.h>'; specified path differs in case from file name on disk [-Wnonportable-include-path]
+#include <MKL25Z4.H>
+         ^~~~~~~~~~~
+         <MKL25Z4.h>
+projectsa.c(2): warning: non-portable path to file '<stdio.h>'; specified path differs in case from file name on disk [-Wnonportable-include-path]
+#include <stdio.H>
+         ^~~~~~~~~
+         <stdio.h>
+projectsa.c(3): warning: In file included from...
+./utils.h(1): warning: non-portable path to file '<MKL25Z4.h>'; specified path differs in case from file name on disk [-Wnonportable-include-path]
+#include <MKL25Z4.H>
+         ^~~~~~~~~~~
+         <MKL25Z4.h>
+./utils.h(22): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+int get_number_from_keypad();
+                          ^
+                           void
+./utils.h(22): warning: a function declaration without a prototype is deprecated in all versions of C and is treated as a zero-parameter prototype in C2x, conflicting with a subsequent definition [-Wdeprecated-non-prototype]
+int get_number_from_keypad();
+    ^
+./utils.h(24): note: conflicting prototype is here
+int get_number_from_keypad(int key_value){
+    ^
+./utils.h(24): warning: no previous prototype for function 'get_number_from_keypad' [-Wmissing-prototypes]
+int get_number_from_keypad(int key_value){
+    ^
+./utils.h(22): note: this declaration is not a prototype; add parameter declarations to make it one
+int get_number_from_keypad();
+    ^
+./utils.h(64): warning: implicit conversion changes signedness: 'uint32_t' (aka 'unsigned int') to 'int' [-Wsign-conversion]
+                        key=keypad_getkey();
+                           ~^~~~~~~~~~~~~~~
+./utils.h(80): warning: passing 'char[32]' to parameter of type 'unsigned char *' converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+                        print_fnc(read_buffer);
+                                  ^~~~~~~~~~~
+./utils.h(16): note: passing argument to parameter 'data' here
+void print_fnc(unsigned char *data);
+                              ^
+./utils.h(52): warning: mixing declarations and code is incompatible with standards before C99 [-Wdeclaration-after-statement]
+        int idx;
+            ^
+./utils.h(46): warning: no previous prototype for function 'read_to_buffer' [-Wmissing-prototypes]
+void read_to_buffer(int* read_coeff, int len){
+     ^
+./utils.h(46): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void read_to_buffer(int* read_coeff, int len){
+^
+static 
+./utils.h(105): warning: implicit conversion loses integer precision: 'int' to 'char' [-Wimplicit-int-conversion]
+                buffer[i] = (significant/q) + '0';
+                          ~ ~~~~~~~~~~~~~~~~^~~~~
+./utils.h(111): warning: implicit conversion loses integer precision: 'int' to 'char' [-Wimplicit-int-conversion]
+                buffer[i] = (point - (point/10)*10) + '0';
+                          ~ ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+./utils.h(94): warning: mixing declarations and code is incompatible with standards before C99 [-Wdeclaration-after-statement]
+        int point = (int) number;
+            ^
+./utils.h(118): warning: function 'blink' could be declared with attribute 'noreturn' [-Wmissing-noreturn]
+void blink(void){
+                ^
+projectsa.c(8): warning: no previous extern declaration for non-static variable 'k' [-Wmissing-variable-declarations]
+volatile int k = 0;
+             ^
+projectsa.c(8): note: declare 'static' if the variable is not intended to be used outside of this translation unit
+volatile int k = 0;
+         ^
+projectsa.c(56): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        PTA->PDDR &= ~0x0002; /* make pin input */
+                  ~~ ^~~~~~~
+projectsa.c(57): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        PORTA->PCR[1] &= ~0xF0000; /* clear interrupt selection */
+                      ~~ ^~~~~~~~
+projectsa.c(76): warning: implicit conversion turns floating-point number into integer: 'float' to 'int' [-Wfloat-conversion]
+                                        square = squarewave[samplenum]* coef;
+                                               ~ ~~~~~~~~~~~~~~~~~~~~~^~~~~~
+projectsa.c(76): warning: implicit conversion from 'const int' to 'float' may lose precision [-Wimplicit-int-float-conversion]
+                                        square = squarewave[samplenum]* coef;
+                                                 ^~~~~~~~~~~~~~~~~~~~~~
+projectsa.c(79): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+                                        Delay(n+17);}
+                                        ~~~~~ ~^~~
+projectsa.c(83): warning: implicit conversion turns floating-point number into integer: 'float' to 'int' [-Wfloat-conversion]
+                                        sine=sinewave[samplenum]*coef;
+                                            ~~~~~~~~~~~~~~~~~~~~^~~~~
+projectsa.c(83): warning: implicit conversion from 'const int' to 'float' may lose precision [-Wimplicit-int-float-conversion]
+                                        sine=sinewave[samplenum]*coef;
+                                             ^~~~~~~~~~~~~~~~~~~~
+projectsa.c(86): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+                                        Delay(n+16);}
+                                        ~~~~~ ~^~~
+projectsa.c(90): warning: implicit conversion turns floating-point number into integer: 'float' to 'int' [-Wfloat-conversion]
+                                        saw_tooth = sawtooth[samplenum] * coef;
+                                                  ~ ~~~~~~~~~~~~~~~~~~~~^~~~~~
+projectsa.c(90): warning: implicit conversion from 'const int' to 'float' may lose precision [-Wimplicit-int-float-conversion]
+                                        saw_tooth = sawtooth[samplenum] * coef;
+                                                    ^~~~~~~~~~~~~~~~~~~ ~
+projectsa.c(94): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+                                        Delay(n+17);}
+                                        ~~~~~ ~^~~
+projectsa.c(97): warning: implicit conversion loses floating-point precision: 'double' to 'float' [-Wimplicit-float-conversion]
+                        coef = result / 4096.0;
+                             ~ ~~~~~~~^~~~~~~~
+projectsa.c(14): warning: mixing declarations and code is incompatible with standards before C99 [-Wdeclaration-after-statement]
+        int samplenum;
+            ^
+projectsa.c(114): warning: implicit conversion turns floating-point number into integer: 'double' to 'uint32_t' (aka 'unsigned int') [-Wfloat-conversion]
+        result = ((result + 1)*3.3)*1000/4096;
+               ~ ~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+projectsa.c(118): warning: implicit conversion changes signedness: 'uint32_t' (aka 'unsigned int') to 'int' [-Wsign-conversion]
+        kalan =result;
+              ~^~~~~~
+projectsa.c(122): warning: implicit conversion loses integer precision: 'int' to 'char' [-Wimplicit-int-conversion]
+                list[p]= kalan + '0';}
+                       ~ ~~~~~~^~~~~
+projectsa.c(126): warning: passing 'char[12]' to parameter of type 'unsigned char *' converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+                        print_fnc("Freq: 610Hz");
+                                  ^~~~~~~~~~~~~
+./utils.h(150): note: passing argument to parameter 'data' here
+void print_fnc(unsigned char *data)
+                              ^
+projectsa.c(128): warning: passing 'char[10]' to parameter of type 'unsigned char *' converts between pointers to integer types where one is of the unique plain 'char' type and the other is not [-Wpointer-sign]
+                        print_fnc("Voltage: ");
+                                  ^~~~~~~~~~~
+./utils.h(150): note: passing argument to parameter 'data' here
+void print_fnc(unsigned char *data)
+                              ^
+projectsa.c(116): warning: mixing declarations and code is incompatible with standards before C99 [-Wdeclaration-after-statement]
+        int p= 0;
+            ^
+projectsa.c(143): warning: implicit conversion changes signedness: 'int' to 'unsigned int' [-Wsign-conversion]
+        ADC0->SC2 &= ~0x40; /* software trigger */
+                  ~~ ^~~~~
+projectsa.c(153): warning: no newline at end of file [-Wnewline-eof]
+}
+ ^
+projectsa.c(149): warning: no previous prototype for function 'PORTA_IRQHandler' [-Wmissing-prototypes]
+void PORTA_IRQHandler(void) 
+     ^
+projectsa.c(149): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void PORTA_IRQHandler(void) 
+^
+static 
+37 warnings generated.
+compiling projectsa.c...
+linking...
+Program Size: Code=4460 RO-data=1148 RW-data=4 ZI-data=360  
+".\Objects\chapter3.axf" - 0 Error(s), 37 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.9.0.pack
+                ARM.CMSIS.5.9.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 5.6.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.Kinetis_KLxx_DFP.1.15.0.pack
+                Keil.Kinetis_KLxx_DFP.1.15.0
+                NXP Kinetis KLxx Series Device Support and Examples
+   * Component: Startup Version: 2.5.0
+
+<h2>Collection of Component include folders:</h2>
+  ./RTE/Device/MKL25Z128xxx4
+  ./RTE/_Target_1
+  C:/Users/Sarper/AppData/Local/Arm/Packs/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+  C:/Users/Sarper/AppData/Local/Arm/Packs/Keil/Kinetis_KLxx_DFP/1.15.0/Device/Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:5.6.0
+
+   * Component: Keil::Device:Startup:2.5.0
+      Source file:   Device/Source/system_MKL25Z4.c
+      Include file:  Device/Source/system_MKL25Z4.h
+      Source file:   Device/Source/ARM/startup_MKL25Z4.s
+Build Time Elapsed:  00:00:01
+</pre>
+</body>
+</html>
